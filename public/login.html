@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Alpha berthaphil • Login</title>
+  <link rel="stylesheet" href="/assets/styles.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width:520px;margin:40px auto">
+      <div class="header">
+        <div class="brand">
+          <div style="width:34px;height:34px;border-radius:12px;background:rgba(87,182,255,.22);border:1px solid var(--border)"></div>
+          <div>Alpha berthaphil</div>
+        </div>
+        <span class="badge">Internal IT Ticketing</span>
+      </div>
+
+      <div style="padding:16px">
+        <div class="muted" style="margin-bottom:12px">Login to access tickets.</div>
+
+        <form id="formLogin">
+          <div class="label">Email</div>
+          <input class="input" id="email" type="email" placeholder="name@company.com" required/>
+
+          <div class="label" style="margin-top:10px">Password</div>
+          <input class="input" id="password" type="password" placeholder="••••••••" required/>
+
+          <div class="row" style="margin-top:14px">
+            <button class="btn" type="submit">Login</button>
+            <a class="btn secondary" href="/setup.html" style="text-decoration:none;text-align:center">Setup Admin</a>
+          </div>
+        </form>
+
+        <div class="hr"></div>
+        <div class="muted" style="font-size:12px">
+          Demo employee (if seeded): <b>employee@alpha.local</b> / <b>Employee123!</b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { login } from "/assets/auth.js";
+    import { UI } from "/assets/ui.js";
+
+    document.getElementById("formLogin").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      try{
+        await login(
+          document.getElementById("email").value.trim(),
+          document.getElementById("password").value
+        );
+        location.href="/app";
+      }catch(err){
+        UI.toast(err.message);
+      }
+    });
+  </script>
+</body>
+</html>

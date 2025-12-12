@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Alpha berthaphil • Tickets</title>
+  <link rel="stylesheet" href="/assets/styles.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="brand">
+          <div style="width:34px;height:34px;border-radius:12px;background:rgba(87,182,255,.22);border:1px solid var(--border)"></div>
+          <div>
+            <div style="font-size:16px">Alpha berthaphil</div>
+            <div class="muted" style="font-size:12px">Internal IT Ticketing</div>
+          </div>
+        </div>
+
+        <div class="row" style="align-items:center">
+          <div style="text-align:right">
+            <div id="meName" style="font-weight:900"></div>
+            <div id="meMeta" class="muted" style="font-size:12px"></div>
+          </div>
+          <button class="btn secondary" id="btnLogout">Logout</button>
+        </div>
+      </div>
+
+      <div style="padding:14px;border-bottom:1px solid var(--border)">
+        <div class="tabs">
+          <div class="tab" data-tab="tabMy">My Tickets <span class="badge" id="myCount">0</span></div>
+          <div class="tab" data-tab="tabNew">New Ticket</div>
+          <div class="tab" data-tab="tabQueue">Queue</div>
+          <div class="tab" data-tab="tabReports">Reports</div>
+          <div class="tab" data-tab="tabUsers">Users</div>
+        </div>
+        <div class="muted" style="font-size:12px;margin-top:10px" id="metaShift"></div>
+      </div>
+
+      <div style="padding:14px;border-bottom:1px solid var(--border)">
+        <div class="row">
+          <input class="input" id="qSearch" placeholder="Search (AB-000123 / subject / category)"/>
+          <select class="select" id="qStatus">
+            <option value="">All Status</option>
+            <option>NEW</option><option>ASSIGNED</option><option>IN_PROGRESS</option>
+            <option>WAITING_ON_USER</option><option>WAITING_ON_VENDOR</option>
+            <option>ESCALATED</option><option>RESOLVED</option><option>CLOSED</option>
+          </select>
+          <select class="select" id="qPriority">
+            <option value="">All Priority</option>
+            <option>P1</option><option>P2</option><option>P3</option><option>P4</option>
+          </select>
+          <button class="btn" id="btnSearch">Search</button>
+        </div>
+      </div>
+
+      <!-- Views -->
+      <div data-view id="tabMy" style="display:none;padding:14px">
+        <div class="card" style="box-shadow:none">
+          <div class="tableWrap desktopOnly">
+            <table>
+              <thead><tr>
+                <th style="width:130px">Ticket</th>
+                <th>Subject</th>
+                <th style="width:140px">Status</th>
+                <th style="width:110px">Priority</th>
+                <th style="width:210px">Requester</th>
+                <th style="width:210px">Assigned</th>
+                <th style="width:220px">Updated</th>
+              </tr></thead>
+              <tbody id="ticketsBodyMy"></tbody>
+            </table>
+          </div>
+          <div class="cardsList mobileOnly" id="ticketsCardsMy"></div>
+        </div>
+      </div>
+
+      <div data-view id="tabQueue" style="display:none;padding:14px">
+        <div class="muted" style="margin-bottom:10px">Queue view shows assigned tickets when you use "My Tickets" tab. Use filters for status/priority.</div>
+        <div class="card" style="box-shadow:none">
+          <div class="tableWrap desktopOnly">
+            <table>
+              <thead><tr>
+                <th style="width:130px">Ticket</th>
+                <th>Subject</th>
+                <th style="width:140px">Status</th>
+                <th style="width:110px">Priority</th>
+                <th style="width:210px">Requester</th>
+                <th style="width:210px">Assigned</th>
+                <th style="width:220px">Updated</th>
+              </tr></thead>
+              <tbody id="ticketsBodyQueue"></tbody>
+            </table>
+          </div>
+          <div class="cardsList mobileOnly" id="ticketsCardsQueue"></div>
+        </div>
+      </div>
+
+      <div data-view id="tabNew" style="display:none;padding:14px">
+        <div class="card" style="box-shadow:none;padding:14px">
+          <form id="formNew">
+            <div class="grid">
+              <div>
+                <div class="label">Subject</div>
+                <input class="input" id="newSubject" placeholder="e.g., VPN not connecting" required/>
+              </div>
+              <div>
+                <div class="label">Category</div>
+                <input class="input" id="newCategory" placeholder="e.g., Network" required/>
+              </div>
+            </div>
+
+            <div class="grid" style="margin-top:12px">
+              <div>
+                <div class="label">Subcategory</div>
+                <input class="input" id="newSub" placeholder="e.g., VPN" required/>
+              </div>
+              <div class="row" style="gap:12px">
+                <div style="flex:1">
+                  <div class="label">Impact</div>
+                  <select class="select" id="newImpact"></select>
+                </div>
+                <div style="flex:1">
+                  <div class="label">Urgency</div>
+                  <select class="select" id="newUrgency"></select>
+                </div>
+              </div>
+            </div>
+
+            <div class="label" style="margin-top:12px">Description</div>
+            <textarea id="newDesc" class="input" placeholder="Describe the issue, device, error, and what you already tried." required></textarea>
+
+            <div class="row" style="margin-top:14px">
+              <button class="btn ok" type="submit">Create Ticket</button>
+              <button class="btn secondary" type="button" onclick="document.getElementById('formNew').reset()">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div data-view id="tabReports" style="display:none;padding:14px">
+        <div class="card" style="box-shadow:none;padding:14px">
+          <div class="kv">
+            <div class="item">Open tickets: <b id="repTotalOpen">—</b></div>
+            <div class="item">Current shift (PH): <b id="repShift">—</b></div>
+            <a class="btn secondary small" id="repExport" href="#" download>Export CSV</a>
+          </div>
+          <div class="hr"></div>
+          <div class="label">By Status</div>
+          <div class="kv" id="repByStatus"></div>
+          <div class="label" style="margin-top:14px">By Priority</div>
+          <div class="kv" id="repByPriority"></div>
+        </div>
+      </div>
+
+      <div data-view id="tabUsers" style="display:none;padding:14px">
+<div class="card" style="box-shadow:none;padding:14px;margin-bottom:12px">
+  <div class="label">Create User (Admin)</div>
+  <form id="formUserCreate">
+    <div class="grid">
+      <div><div class="label">Name</div><input class="input" id="ucName" required/></div>
+      <div><div class="label">Email</div><input class="input" id="ucEmail" type="email" required/></div>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div><div class="label">Role</div>
+        <select class="select" id="ucRole">
+          <option>EMPLOYEE</option><option>L1</option><option>L2</option><option>L3</option><option>SUPERVISOR</option><option>ADMIN</option>
+        </select>
+      </div>
+      <div><div class="label">Team</div>
+        <select class="select" id="ucTeam">
+          <option>SERVICE_DESK</option><option>NETWORK</option><option>SYSTEMS</option><option>SECURITY</option><option>APPLICATION</option><option>FIELD</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div><div class="label">Shift</div>
+        <select class="select" id="ucShift">
+          <option>MORNING</option><option>MID</option><option>NIGHT</option><option>WEEKEND</option><option>ONCALL</option>
+        </select>
+      </div>
+      <div><div class="label">Password</div><input class="input" id="ucPass" type="password" minlength="8" required/></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ok" type="submit">Create</button>
+      <button class="btn secondary" type="button" id="ucClear">Clear</button>
+    </div>
+  </form>
+  <div class="muted" style="font-size:12px;margin-top:10px">Tip: Create L1/L2/L3 agents with correct Team + Shift to enable auto-assignment.</div>
+</div>
+
+        <div class="card" style="box-shadow:none">
+          <div class="tableWrap desktopOnly">
+            <table style="min-width:760px">
+              <thead><tr>
+                <th>Name</th><th style="width:120px">Role</th><th style="width:140px">Team</th><th style="width:120px">Shift</th><th style="width:120px">Status</th><th style="width:210px">Actions</th>
+              </tr></thead>
+              <tbody id="usersBody"></tbody>
+            </table>
+          </div>
+          <div class="muted mobileOnly">Users table is best viewed on a wider screen.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ticket panel -->
+    <div class="card" id="ticketPanel" style="margin-top:14px;display:none">
+      <div class="header">
+        <div>
+          <div class="badge" id="tdHuman">—</div>
+          <div style="font-weight:900;font-size:18px;margin-top:6px" id="tdSubject">—</div>
+          <div class="muted" style="margin-top:6px" id="tdMeta">—</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted" style="font-size:12px" id="tdSla">—</div>
+        </div>
+      </div>
+
+      <div style="padding:14px">
+        <div class="grid">
+          <div class="card" style="box-shadow:none;padding:14px;background:rgba(0,0,0,.22)">
+            <div class="label">Requester</div>
+            <div id="tdReq"></div>
+
+            <div class="label" style="margin-top:12px">Assigned</div>
+            <div id="tdAss"></div>
+
+            <div class="hr"></div>
+
+            <div class="label">Description</div>
+            <div id="ticketDesc" style="white-space:pre-wrap"></div>
+          </div>
+
+          <div class="card" style="box-shadow:none;padding:14px;background:rgba(0,0,0,.22)">
+            <div id="itActions" style="display:none">
+              <div class="label">IT Actions</div>
+              <div class="row">
+                <div style="flex:1">
+                  <div class="label">Status</div>
+                  <select class="select" id="itStatus">
+                    <option>NEW</option><option>ASSIGNED</option><option>IN_PROGRESS</option>
+                    <option>WAITING_ON_USER</option><option>WAITING_ON_VENDOR</option>
+                    <option>ESCALATED</option><option>RESOLVED</option><option>CLOSED</option>
+                  </select>
+                </div>
+                <div style="flex:1">
+                  <div class="label">Priority</div>
+                  <select class="select" id="itPriority">
+                    <option>P1</option><option>P2</option><option>P3</option><option>P4</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top:10px">
+                <label style="display:flex;align-items:center;gap:10px">
+                  <input type="checkbox" id="itSlaPaused"/>
+                  <span class="muted">Pause SLA</span>
+                </label>
+                <input class="input" id="itSlaReason" placeholder="Pause reason (required if paused)"/>
+              </div>
+
+              <div class="row" style="margin-top:12px">
+                <button class="btn ok" id="btnUpdateTicket" type="button">Save Changes</button>
+                <button class="btn secondary" id="btnEscalate" type="button">Escalate</button>
+              </div>
+
+              <div class="hr"></div>
+            </div>
+
+            <div id="empActions" style="display:none">
+              <div class="label">Employee Actions</div>
+              <button class="btn secondary" id="btnReopen" type="button">Reopen Ticket</button>
+              <div class="hr"></div>
+            </div>
+
+            <div class="label">Add Comment</div>
+            <form id="formComment">
+              <textarea class="input" id="commentBody" placeholder="Write your update..." required></textarea>
+              <div class="row" style="margin-top:10px;align-items:center;justify-content:space-between">
+                <label class="muted" style="font-size:12px;display:flex;align-items:center;gap:8px">
+                  <input type="checkbox" id="commentInternal"/>
+                  Internal note (IT only)
+                </label>
+                <button class="btn" type="submit">Post</button>
+              </div>
+            </form>
+
+            <div class="hr"></div>
+
+            <div class="label">Conversation</div>
+            <div id="comments"></div>
+
+            <div id="auditWrap" style="display:none">
+              <div class="hr"></div>
+              <div class="label">Audit (IT only)</div>
+              <div id="audit"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="/assets/app.js"></script>
+</body>
+</html>

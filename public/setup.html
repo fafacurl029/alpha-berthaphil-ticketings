@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Alpha berthaphil • Setup</title>
+  <link rel="stylesheet" href="/assets/styles.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width:620px;margin:40px auto">
+      <div class="header">
+        <div class="brand">
+          <div style="width:34px;height:34px;border-radius:12px;background:rgba(61,220,151,.18);border:1px solid var(--border)"></div>
+          <div>Alpha berthaphil</div>
+        </div>
+        <span class="badge">Bootstrap Admin</span>
+      </div>
+
+      <div style="padding:16px">
+        <div class="muted" style="margin-bottom:12px">
+          Create the first <b>Admin</b> account (one-time). Requires <b>BOOTSTRAP_TOKEN</b> from Render environment variables.
+        </div>
+
+        <form id="formSetup">
+          <div class="label">Bootstrap Token</div>
+          <input class="input" id="token" placeholder="BOOTSTRAP_TOKEN" required/>
+
+          <div class="grid" style="margin-top:12px">
+            <div>
+              <div class="label">Admin Name</div>
+              <input class="input" id="name" placeholder="Admin name" required/>
+            </div>
+            <div>
+              <div class="label">Admin Email</div>
+              <input class="input" id="email" type="email" placeholder="admin@company.com" required/>
+            </div>
+          </div>
+
+          <div class="label" style="margin-top:12px">Admin Password</div>
+          <input class="input" id="password" type="password" placeholder="Min 8 chars" required/>
+
+          <div class="row" style="margin-top:14px">
+            <button class="btn ok" type="submit">Create Admin</button>
+            <a class="btn secondary" href="/login.html" style="text-decoration:none;text-align:center">Back to Login</a>
+          </div>
+        </form>
+
+        <div class="hr"></div>
+        <div class="muted" style="font-size:12px">
+          If you see “Admin already exists”, just go back to login.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { api } from "/assets/api.js";
+    import { UI } from "/assets/ui.js";
+
+    document.getElementById("formSetup").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      try{
+        const payload = {
+          token: document.getElementById("token").value.trim(),
+          name: document.getElementById("name").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          password: document.getElementById("password").value
+        };
+        await api("/api/setup/bootstrap", { method:"POST", body: JSON.stringify(payload) });
+        UI.toast("Admin created. Redirecting…");
+        setTimeout(()=> location.href="/app", 700);
+      }catch(err){
+        UI.toast(err.message);
+      }
+    });
+  </script>
+</body>
+</html>
